@@ -20,8 +20,8 @@ public class Administratie {
         //todo opgave 1
         nextPersNr = 0;
         nextGezinsNr = 0;
-        this.personen = null;
-        this.gezinnen = null;
+        personen = new ArrayList<>();
+        gezinnen = new ArrayList<>();
     }
 
     //**********************methoden****************************************
@@ -68,15 +68,27 @@ public class Administratie {
         }
 
         //todo opgave 1
-        for (Persoon persoon : personen)
+        if (personen != null)
         {
+            for (Persoon persoon : personen)
+         {
             if (persoon.getAchternaam().equals(anaam) && persoon.getGebDat().equals(gebdat) && persoon.getGebPlaats().equals(gebplaats)){
                throw new IllegalArgumentException("Persoon bestaat al");
             }
-        }
+            else
+            {
                 Persoon newpersoon = new Persoon(nextPersNr + 1, vnamen, anaam, tvoegsel, gebdat, gebplaats,geslacht, ouderlijkGezin);
                 personen.add(newpersoon);
                 return newpersoon;
+            }
+         }
+        }
+        else{
+                Persoon newpersoon = new Persoon(nextPersNr + 1, vnamen, anaam, tvoegsel, gebdat, gebplaats,geslacht, ouderlijkGezin);
+                personen.add(newpersoon);
+                return newpersoon;
+        }
+             return null;
         
       
     }
@@ -191,11 +203,17 @@ public class Administratie {
      */
     public Gezin addHuwelijk(Persoon ouder1, Persoon ouder2, Calendar huwdatum) {
         //todo opgave 1
-        if (ouder1.equals(ouder2) || ouder1.kanTrouwenOp(huwdatum) || ouder2.kanTrouwenOp(huwdatum))
+        if (!ouder1.getAchternaam().equals(ouder2.getAchternaam()))
         {
+            if (ouder1.getAlsOuderBetrokkenIn().isEmpty() || ouder2.getAlsOuderBetrokkenIn().isEmpty())
+                {
+                    return addHuwelijk(ouder1, ouder2, huwdatum);  
+        } else {
             return null;
         }
-        return addHuwelijk(ouder1, ouder2, huwdatum);  
+        
+                }
+        return null;
     }
 
     /**
