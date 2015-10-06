@@ -10,8 +10,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Properties;
 import stamboom.domain.Administratie;
 import stamboom.storage.IStorageMediator;
+import stamboom.storage.SerializationMediator;
 
 public class StamboomController {
 
@@ -37,6 +39,10 @@ public class StamboomController {
     public void clearAdministratie() {
         admin = new Administratie();
     }
+    
+    public void setAdmin(Administratie admin){
+        this.admin = admin;
+    }
 
     /**
      * administratie wordt in geserialiseerd bestand opgeslagen
@@ -46,20 +52,20 @@ public class StamboomController {
      */
     public void serialize(File bestand) throws IOException {
         //todo opgave 2
-        try
-      {
-         FileOutputStream fileOut =
-         new FileOutputStream(bestand.getAbsolutePath());
-         ObjectOutputStream out = new ObjectOutputStream(fileOut);
-         out.writeObject(bestand);
-         out.close();
-         fileOut.close();
-         System.out.printf("Serialized data is saved in " + bestand.getAbsolutePath());
-      }catch(IOException i)
-      {
-          i.printStackTrace();
-      }
-        
+        try{
+            ObjectOutputStream out;
+            FileOutputStream stream;
+            stream = new FileOutputStream(bestand);
+            out = new ObjectOutputStream(stream);
+            out.writeObject(admin);
+
+            out.close();
+            stream.close();
+        }
+        catch(IOException exc)
+        {
+            exc.printStackTrace();
+        }
     }
 
     /**
@@ -70,24 +76,26 @@ public class StamboomController {
      */
     public void deserialize(File bestand) throws IOException {
         //todo opgave 2
-        try
-      {
-         FileInputStream fileIn = new FileInputStream(bestand.getAbsoluteFile());
-         ObjectInputStream in = new ObjectInputStream(fileIn);
-         bestand = (File) in.readObject();
-         in.close();
-         fileIn.close();
-      }catch(IOException i)
-      {
-         i.printStackTrace();
-         return;
-      }catch(ClassNotFoundException c)
-      {
-         System.out.println("Employee class not found");
-         c.printStackTrace();
-         return;
-      }
-  
+        try{
+            ObjectInputStream in;
+            FileInputStream stream;
+            stream = new FileInputStream(bestand);
+            in = new ObjectInputStream(stream);
+            Administratie adminObject;
+            adminObject = (Administratie) in.readObject();
+
+            admin = adminObject;
+
+            in.close();
+            stream.close();
+        }
+        catch(IOException exc){
+            exc.printStackTrace();
+        }
+        catch(ClassNotFoundException exc)
+        {
+            exc.printStackTrace();
+        }
     }
     
     // opgave 4

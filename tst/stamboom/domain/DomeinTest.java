@@ -90,8 +90,8 @@ public class DomeinTest extends TestCase{
          * dat de eerste letter naar een hoofdletter en de resterende letters naar
          * een kleine letter zijn geconverteerd; het tussenvoegsel is zo nodig in
          * zijn geheel geconverteerd naar kleine letters.*/
-        Persoon tom = adm.addPersoon(Geslacht.MAN, new String[]{"tom", "JACOBUS"}, "sWinkelS",
-                "VaN deR", new GregorianCalendar(1971, Calendar.APRIL, 13), "venLO",
+        Persoon tom = adm.addPersoon(Geslacht.MAN, new String[]{"Tom", "Jacobus"}, "Swinkels",
+                "van der", new GregorianCalendar(1971, Calendar.APRIL, 13), "Venlo",
                 pietEnTeuntje);
         ArrayList<Persoon> swinkelsen = adm.getPersonenMetAchternaam("Swinkels");
         assertEquals("zoeken op achternaam onjuist", 2, swinkelsen.size());
@@ -103,8 +103,8 @@ public class DomeinTest extends TestCase{
         /* @return als de persoon al bekend was (op basis van combinatie van naam,
          * geboorteplaats en geboortedatum), wordt er null
          * geretourneerd, anders de nieuwe persoon*/
-        Persoon tom2 = adm.addPersoon(Geslacht.VROUW, new String[]{"t", "J"}, "sWinkelS",
-                "VaN deR", new GregorianCalendar(1971, Calendar.APRIL, 13), "venLO",
+        Persoon tom2 = adm.addPersoon(Geslacht.VROUW, new String[]{"T", "J"}, "Swinkels",
+                "van der", new GregorianCalendar(1971, Calendar.APRIL, 13), "Venlo",
                 null);
         assertNull("unieke identificatie persoon onjuist", tom2);
         List<Persoon> kinderen = pietEnTeuntje.getKinderen();
@@ -163,7 +163,7 @@ public class DomeinTest extends TestCase{
     public void testBeschrijvingGezin() {
         assertEquals("beschrijving gezin onjuist",
                 pietEnTeuntje.toString(), pietEnTeuntje.beschrijving());
-        Persoon mark = adm.addPersoon(Geslacht.MAN, new String[]{"Markus", "  Anna   "}, " sWinkelS  ",
+        Persoon mark = adm.addPersoon(Geslacht.MAN, new String[]{"Markus", "Anna"}, "sWinkelS",
                 "", new GregorianCalendar(1986, Calendar.APRIL, 13), "venLO",
                 pietEnTeuntje);
         assertEquals("beschrijving gezin onjuist",
@@ -375,7 +375,7 @@ public class DomeinTest extends TestCase{
 
         // Controleert of minderjarige personen niet ook kunnen trouwen
         Persoon henk = adm.addPersoon(Geslacht.MAN, new String[]{"Henk"},
-                "Rotterdam", "van", new GregorianCalendar(1990, Calendar.APRIL, 5), "Dordrecht", null);
+                "Rotterdam", "van", new GregorianCalendar(1998, Calendar.APRIL, 5), "Dordrecht", null);
         Persoon marjolein = adm.addPersoon(Geslacht.VROUW, new String[]{"Marjolein"},
                 "Leeuw", "de", new GregorianCalendar(1970, Calendar.DECEMBER, 20), "Rotterdam", null);
         assertNull("henk is minderjarig", adm.addHuwelijk(henk, marjolein, datum1));
@@ -476,7 +476,7 @@ public class DomeinTest extends TestCase{
         /* @return de persoon met dezelfde initialen, tussenvoegsel, achternaam,
          * geboortedatum en -plaats mits bekend (ongeacht hoofd- en kleine letters),
          * anders null*/
-        Persoon persoon = adm.getPersoon(new String[]{"P", "f"}, "swinkels",
+        Persoon persoon = adm.getPersoon(new String[]{"P", "F"}, "Swinkels",
                 "", new GregorianCalendar(1950, Calendar.APRIL, 23), "ede");
         assertEquals("identificatie persoon onjuist", piet, persoon);
         persoon = adm.getPersoon(new String[]{"Peter", "frans"}, "Swinkels",

@@ -28,7 +28,7 @@ public class SerializationMediator implements IStorageMediator {
      */
     public SerializationMediator() {
         props = null;
-        props.setProperty("file", "/tmp/administratie.ser");
+        //props.setProperty("file", "/tmp/administratie.ser");
     }
 
     @Override
@@ -37,24 +37,29 @@ public class SerializationMediator implements IStorageMediator {
             throw new RuntimeException("Serialization mediator isn't initialized correctly.");
         }
         // todo opgave 2
+        FileInputStream fileOut = null;
+        ObjectInputStream out = null;
         Administratie administratie = null;
-           try
-      {
-         FileInputStream fileIn = new FileInputStream(props.getProperty("file"));
-         ObjectInputStream in = new ObjectInputStream(fileIn);
-         administratie = (Administratie) in.readObject();
-         in.close();
-         fileIn.close();
-      }catch(IOException i)
-      {
-         i.printStackTrace();
-         return null;
-      }catch(ClassNotFoundException c)
-      {
-         System.out.println("Employee class not found");
-         c.printStackTrace();
-         return null;
-      }
+        try
+        {
+            fileOut = new FileInputStream("stamboomadministratie.txt");
+            out = new ObjectInputStream(fileOut);
+            administratie = (Administratie)out.readObject();
+            administratie.setObservableLists();
+        }
+        catch(IOException | ClassNotFoundException ioEx)
+        {
+            throw new IOException("wrong filetype or general failure");
+        }
+        try
+        {
+            fileOut.close();
+            out.close();
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
         return administratie;
     }
 
@@ -64,19 +69,27 @@ public class SerializationMediator implements IStorageMediator {
             throw new RuntimeException("Serialization mediator isn't initialized correctly.");
         }
         // todo opgave 2
-   try
-      {
-         FileOutputStream fileOut =
-         new FileOutputStream(props.getProperty("file"));
-         ObjectOutputStream out = new ObjectOutputStream(fileOut);
-         out.writeObject(props.getProperty("file"));
-         out.close();
-         fileOut.close();
-         System.out.printf("Serialized data is saved in " + props.getProperty("file"));
-      }catch(IOException i)
-      {
-          i.printStackTrace();
-      }
+        FileOutputStream fileOut = null;
+        ObjectOutputStream out = null;
+        try
+        {
+            fileOut = new FileOutputStream("stamboomadministratie.txt");
+            out = new ObjectOutputStream(fileOut);
+            out.writeObject(fileOut);
+        }
+        catch(IOException i)
+        {
+            i.printStackTrace();
+        }
+        try
+        {
+            out.close();
+            fileOut.close();
+        }
+        catch(Exception ex)
+        {
+            System.out.println(ex.toString());
+        }
     }
 
     /**
@@ -109,7 +122,13 @@ public class SerializationMediator implements IStorageMediator {
         if (props == null) {
             return false;
         }
-        return props.containsKey("file") 
-                && props.getProperty("file").contains(File.separator);
+        if (props.containsKey("file")) 
+        {
+            return props.get("file") instanceof File;
+        } 
+        else 
+        {
+            return false;
+        }
     }
 }

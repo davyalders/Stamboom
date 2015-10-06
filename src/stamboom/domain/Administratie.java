@@ -1,14 +1,19 @@
 package stamboom.domain;
 
+import java.io.Serializable;
 import java.util.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-public class Administratie {
+public final class Administratie implements Serializable {
 
     //************************datavelden*************************************
     private int nextGezinsNr;
     private int nextPersNr;
-    private final List<Persoon> personen;
-    private final List<Gezin> gezinnen;
+    private List<Persoon> personen;
+    private List<Gezin> gezinnen;
+    private transient ObservableList<Persoon> observablePersonen;
+    private transient ObservableList<Gezin> observableGezinnen;
 
     //***********************constructoren***********************************
     /**
@@ -17,11 +22,18 @@ public class Administratie {
      * (apart) opvolgend genummerd vanaf 1
      */
     public Administratie() {
-        //todo opgave 1
-        nextPersNr = 0;
-        nextGezinsNr = 0;
+        //todo opgave 1 - Completed
+        nextPersNr = 1;
+        nextGezinsNr = 1;
         personen = new ArrayList<>();
         gezinnen = new ArrayList<>();
+        setObservableLists();
+    }
+    
+        public void setObservableLists()
+    {
+        observablePersonen = FXCollections.observableList(personen);
+        observableGezinnen = FXCollections.observableList(gezinnen);
     }
 
     //**********************methoden****************************************
@@ -66,32 +78,22 @@ public class Administratie {
         if (gebplaats.trim().isEmpty()) {
             throw new IllegalArgumentException("lege geboorteplaats is niet toegestaan");
         }
-
-        //todo opgave 1
-        if (personen != null)
-        {
-            for (Persoon persoon : personen)
-         {
-            if (persoon.getAchternaam().equals(anaam) && persoon.getGebDat().equals(gebdat) && persoon.getGebPlaats().equals(gebplaats)){
-               throw new IllegalArgumentException("Persoon bestaat al");
-            }
-            else
-            {
-                Persoon newpersoon = new Persoon(nextPersNr + 1, vnamen, anaam, tvoegsel, gebdat, gebplaats,geslacht, ouderlijkGezin);
-                personen.add(newpersoon);
-                return newpersoon;
-            }
-         }
-        }
-        else{
-                Persoon newpersoon = new Persoon(nextPersNr + 1, vnamen, anaam, tvoegsel, gebdat, gebplaats,geslacht, ouderlijkGezin);
-                personen.add(newpersoon);
-                return newpersoon;
-        }
-             return null;
         
-      
+        //todo opgave 1
+        Persoon newPersoon = new Persoon(nextPersNr, vnamen, anaam, tvoegsel, gebdat, gebplaats, geslacht, ouderlijkGezin);
+        
+        for(Persoon p : this.getPersonenMetAchternaam(newPersoon.getAchternaam()))
+        {
+            if(p.getNaam().equals(newPersoon.getNaam()) && p.getGebPlaats().equals((newPersoon.getGebPlaats())))
+            {
+                return null;
+            }
+        }
+        this.personen.add(newPersoon);
+        nextPersNr++;
+        return newPersoon;
     }
+      
 
     /**
      * er wordt, zo mogelijk (zie return) een (kinderloos) ongehuwd gezin met
@@ -203,17 +205,61 @@ public class Administratie {
      */
     public Gezin addHuwelijk(Persoon ouder1, Persoon ouder2, Calendar huwdatum) {
         //todo opgave 1
-        if (!ouder1.getAchternaam().equals(ouder2.getAchternaam()))
+        Gezin newGezin = null;
+        if (ouder1 == ouder2)
         {
-            if (ouder1.getAlsOuderBetrokkenIn().isEmpty() || ouder2.getAlsOuderBetrokkenIn().isEmpty())
-                {
-                    return addHuwelijk(ouder1, ouder2, huwdatum);  
-        } else {
             return null;
         }
         
+        for(Gezin g : gezinnen)
+        {
+            if(g.getOuder1() == ouder1 || g.getOuder2() == ouder1)
+            {
+                if(g.getHuwelijksdatum() != null && (g.getScheidingsdatum() == null || huwdatum.before(g.getScheidingsdatum())))
+                {
+                    return null;
                 }
-        return null;
+            }
+            if(g.getOuder1() == ouder2 || g.getOuder2() == ouder2)
+            {
+                if(g.getHuwelijksdatum() != null && (g.getScheidingsdatum() == null || huwdatum.before(g.getScheidingsdatum())))
+                {
+                    return null;
+                }
+            }
+        }
+        
+        for(Persoon p : personen)
+        {
+            if(p.equals(ouder1))
+            {
+                newGezin = ouder1.heeftOngehuwdGezinMet(ouder2);
+                Calendar gebDat = ouder1.getGebDat();
+                int jaar = gebDat.get(Calendar.YEAR);
+                if(newGezin != null)
+                {
+
+                    if(jaar < 1997)
+                    {
+                        ouder1.heeftOngehuwdGezinMet(ouder2).setHuwelijk(huwdatum);
+                    }
+                    else
+                    {
+                        throw new IllegalArgumentException("persoon is minderjarig");
+                    }
+                }
+                else if(jaar < 1997)
+                {
+                    newGezin = new Gezin(this.nextGezinsNr, ouder1, ouder2);
+                    newGezin.setHuwelijk(huwdatum);
+                    ouder1.wordtOuderIn(newGezin);
+                    ouder2.wordtOuderIn(newGezin);
+                    this.gezinnen.add(newGezin);
+                    this.nextGezinsNr++;
+                }
+            }
+        }
+        return newGezin;
     }
 
     /**
@@ -221,7 +267,7 @@ public class Administratie {
      * @return het aantal geregistreerde personen
      */
     public int aantalGeregistreerdePersonen() {
-        return nextPersNr - 1;
+        return nextPersNr;
     }
 
     /**
@@ -229,7 +275,7 @@ public class Administratie {
      * @return het aantal geregistreerde gezinnen
      */
     public int aantalGeregistreerdeGezinnen() {
-        return nextGezinsNr - 1;
+        return nextGezinsNr;
     }
 
     /**
@@ -266,12 +312,15 @@ public class Administratie {
         ArrayList<Persoon> list = new ArrayList<>();
        if (personen != null)
        {
-           personen.stream().filter((persoon) -> (persoon.getAchternaam().equals(achternaam))).forEach((persoon) -> {
-            list.add(persoon);
-        });}
-       
-        return list;
-       
+           for(Persoon persoon : personen)
+           {
+               if(persoon.getAchternaam().toUpperCase().equals(achternaam.toUpperCase()))
+               {
+                   list.add(persoon);
+               }
+           }
+       }     
+       return list;
     }
 
     /**
@@ -279,11 +328,10 @@ public class Administratie {
      * @return de geregistreerde personen
      */
     public List<Persoon> getPersonen() {
-        ArrayList list = new ArrayList();
-        personen.stream().forEach((persoon) -> {
-            list.add(persoon);
-        });
-        return list;
+        //todo opgave 1 - Completed
+        List<Persoon> personen = new ArrayList<>();
+        personen.addAll(this.personen);
+        return personen;
     }
 
     /**
@@ -300,14 +348,20 @@ public class Administratie {
     public Persoon getPersoon(String[] vnamen, String anaam, String tvoegsel,
             Calendar gebdat, String gebplaats) {
         //todo opgave 1
-        for (Persoon persoon : personen)
+        Persoon retPerson = null;
+        
+        for (Persoon p : this.personen)
         {
-        if (persoon.getVoornamen().equals(vnamen) && persoon.getAchternaam().equals(anaam) && persoon.getGebDat().equals(gebdat) && persoon.getGebPlaats().equals(gebplaats))
-        {
-          return persoon;
+            if(p.getAchternaam().toLowerCase().equals(anaam.toLowerCase()) &&
+               p.getTussenvoegsel().toLowerCase().equals(tvoegsel.toLowerCase()) &&
+               p.getInitialen().toLowerCase().equals(setInitialen(vnamen).toLowerCase()) &&
+               (p.getGebDat().equals(gebdat) || p.getGebDat() == null) &&
+               (p.getGebPlaats().toLowerCase().equals(gebplaats.toLowerCase()) || p.getGebPlaats() == null))
+            {
+                retPerson = p;
+            }
         }
-        }
-        return null;
+        return retPerson;
     }
 
     /**
@@ -315,7 +369,8 @@ public class Administratie {
      * @return de geregistreerde gezinnen
      */
     public List<Gezin> getGezinnen() {
-        return null;
+        //todo opgave 1 - Completed
+        return (ObservableList<Gezin>)FXCollections.unmodifiableObservableList(observableGezinnen);
     }
 
     /**
@@ -330,5 +385,21 @@ public class Administratie {
             return gezinnen.get(gezinsNr - 1);
         }
         return null;
+    }
+    
+     /**
+     *
+     * @return de voorletters van de voornamen; elke voorletter wordt gevolgd
+     * door een punt
+     */
+public String setInitialen(String[] voornamen) {
+        //todo opgave 1
+        String retInitialen = "";
+        
+        for (int i = 0; i < voornamen.length; i++)
+        {
+            retInitialen += voornamen[i].toUpperCase().charAt(0) + ".";
+        }
+        return retInitialen;
     }
 }

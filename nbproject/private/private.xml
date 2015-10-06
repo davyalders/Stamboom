@@ -1,12 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
-    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://www.netbeans.org/ns/project-private/1 ">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"
+                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                      xsi:schemaLocation="http://www.netbeans.org/ns/editor-bookmarks/2 "/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xsi:schemaLocation="http://www.netbeans.org/ns/projectui-open-files/2 ">
         <group>
-            <file>file:/C:/Users/davy/Dropbox/JSF3&amp;GSO3/C%232J/Stamboom/src/stamboom/domain/Administratie.java</file>
-            <file>file:/C:/Users/davy/Dropbox/JSF3&amp;GSO3/C%232J/Stamboom/src/stamboom/console/StamboomConsole.java</file>
-            <file>file:/C:/Users/davy/Dropbox/JSF3&amp;GSO3/C%232J/Stamboom/tst/stamboom/domain/StamboomTest.java</file>
-            <file>file:/C:/Users/davy/Dropbox/JSF3&amp;GSO3/C%232J/Stamboom/src/stamboom/domain/Persoon.java</file>
+            <file>
+                file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/domain/Persoon.java
+            </file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/storage/SerializationMediator.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/tst/stamboom/domain/StamboomTest.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/tst/stamboom/storage/SerialisatieTest.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/controller/StamboomController.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/tst/stamboom/domain/DomeinTest.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/tst/stamboom/test/StamboomTestSuite.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/console/MenuItem.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/storage/IStorageMediator.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/console/StamboomConsole.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/domain/Administratie.java</file>
+            <file>file:/C:/Users/robin/Dropbox/JSF3&amp;GSO3&amp;C%232J/C%232J/Stamboom/src/stamboom/domain/Gezin.java
+            </file>
         </group>
     </open-files>
 </project-private>

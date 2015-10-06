@@ -1,13 +1,17 @@
 package stamboom.domain;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.List;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import stamboom.util.StringUtilities;
 
-public class Persoon {
+public class Persoon implements Serializable {
 
     // ********datavelden**************************************
     private final int nr;
@@ -18,6 +22,7 @@ public class Persoon {
     private final String gebPlaats;
     private Gezin ouderlijkGezin;
     private final List<Gezin> alsOuderBetrokkenIn;
+    private transient ObservableList<Gezin> observableAlsOuderBetrokkenIn;
     private final Geslacht geslacht;
 
     // ********constructoren***********************************
@@ -33,6 +38,7 @@ public class Persoon {
      */
     Persoon(int persNr, String[] vnamen, String anaam, String tvoegsel,
             Calendar gebdat, String gebplaats, Geslacht g, Gezin ouderlijkGezin){
+        //todo opgave 1 - Completed
        this.nr = persNr;
        this.voornamen = vnamen;
        this.achternaam = anaam.substring(0,1).toUpperCase() + anaam.substring(1);
@@ -40,8 +46,13 @@ public class Persoon {
        this.gebPlaats= gebplaats.substring(0,1).toUpperCase() + gebplaats.substring(1);
        this.gebDat = gebdat;
        this.geslacht = g;
-       this.ouderlijkGezin = null;
-       this.alsOuderBetrokkenIn = null;
+       this.alsOuderBetrokkenIn = new ArrayList();
+        this.observableAlsOuderBetrokkenIn = FXCollections.observableList(alsOuderBetrokkenIn);
+       this.ouderlijkGezin = ouderlijkGezin;
+       if(this.ouderlijkGezin != null)
+       {
+           this.ouderlijkGezin.breidUitMet(this);
+       }
     }
 
     // ********methoden****************************************
@@ -81,6 +92,7 @@ public class Persoon {
      * door een punt
      */
     public String getInitialen() {
+        //todo opgave 1 - Completed
         String initialen = "";
         for(String voornaam : voornamen)
         {
@@ -96,7 +108,8 @@ public class Persoon {
      * gescheiden door een spatie
      */
     public String getNaam() {
-        return getInitialen() + " " + getTussenvoegsel() + " " + getAchternaam();
+        //todo opgave 1 - Completed
+        return getInitialen() + " " + ((tussenvoegsel.length() > 0)?tussenvoegsel + " ": "") + getAchternaam();
     }
 
     /**
@@ -148,7 +161,7 @@ public class Persoon {
      * @return de gezinnen waar deze persoon bij betrokken is
      */
     public List<Gezin> getAlsOuderBetrokkenIn() {
-        return (List<Gezin>) Collections.unmodifiableList(alsOuderBetrokkenIn);
+        return FXCollections.unmodifiableObservableList(observableAlsOuderBetrokkenIn);
     }
 
     /**
@@ -162,8 +175,13 @@ public class Persoon {
      */
     boolean setOuders(Gezin ouderlijkGezin) {
         //todo opgave 1 - Completed
-        List<Gezin> gezinnen = getAlsOuderBetrokkenIn();
-        return gezinnen.contains(ouderlijkGezin);
+        if(this.ouderlijkGezin == null)
+        {
+            this.ouderlijkGezin = ouderlijkGezin;
+            ouderlijkGezin.breidUitMet(this);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -213,6 +231,7 @@ public class Persoon {
      * null
      */
     public Gezin heeftOngehuwdGezinMet(Persoon andereOuder) {
+        //todo opgave 1
         for (Gezin gezin : alsOuderBetrokkenIn) {
             if (gezin.getOuder1() == andereOuder) {
                 return gezin;
@@ -272,6 +291,7 @@ public class Persoon {
      * @return true als persoon op datum gescheiden is, anders false
      */
     public boolean isGescheidenOp(Calendar datum) {
+        //todo opgave 1 - Completed
                 for (Gezin gezin : alsOuderBetrokkenIn) {
             if (gezin.heeftGescheidenOudersOp(datum)) {
                 return true;
@@ -290,8 +310,17 @@ public class Persoon {
      */
     public int afmetingStamboom() {
         //todo opgave 2
+        int result = 1;
         
-        return -1;
+        Gezin g = getOuderlijkGezin();
+        if(g != null)
+        {
+            Persoon ouder = g.getOuder1();
+            if(ouder != null) result += ouder.afmetingStamboom();
+            ouder = g.getOuder2();
+            if(ouder != null) result += ouder.afmetingStamboom();
+        }
+        return result;
     }
 
     /**
@@ -308,6 +337,19 @@ public class Persoon {
      */
     void voegJouwStamboomToe(ArrayList<PersoonMetGeneratie> lijst, int g) {
         //todo opgave 2
+        if (lijst == null) throw new NullPointerException();
+        if(g < 0) throw new IllegalArgumentException("no null values please");
+        
+        lijst.add(new PersoonMetGeneratie(toString(), g));
+        Gezin gezin = getOuderlijkGezin();
+        if(gezin != null)
+        {
+            Persoon p = gezin.getOuder1();
+            if(p != null) p.voegJouwStamboomToe(lijst, g + 1);
+            
+            p = gezin.getOuder2();
+            if(p != null) p.voegJouwStamboomToe(lijst, g + 1);
+        }
     }
 
     /**
@@ -334,9 +376,19 @@ public class Persoon {
      * ____J.A. Pieterse (MAN) 4-8-1923<br>
      */
     public String stamboomAlsString() {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(this.toString());
         //todo opgave 2
-
+        ArrayList<PersoonMetGeneratie> people = new ArrayList<>();
+        voegJouwStamboomToe(people, 0);
+        
+        for(PersoonMetGeneratie pmg : people)
+        {
+            for(int i = 0; i < pmg.getGeneratie(); i++)
+            {
+                builder.append("  ");
+            }
+            builder.append(pmg.getPersoonsgegevens()).append(System.getProperty("line.separator"));
+        }
         return builder.toString();
     }
 }

@@ -285,5 +285,4 @@ public class StamboomFXController extends StamboomController implements Initiali
     private Stage getStage() {
         return (Stage) menuBar.getScene().getWindow();
     }
-
 }

@@ -1,5 +1,7 @@
 package stamboom.domain;
 
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -7,13 +9,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import stamboom.util.StringUtilities;
 
-public class Gezin {
+public class Gezin implements Serializable {
 
     // *********datavelden*************************************
     private final int nr;
     private final Persoon ouder1;
     private final Persoon ouder2;
     private final List<Persoon> kinderen;
+    private transient ObservableList<Persoon> observableKinderen;
     /**
      * kan onbekend zijn (dan is het een ongehuwd gezin):
      */
@@ -64,7 +67,8 @@ public class Gezin {
         this.nr = gezinsNr;
         this.ouder1 = ouder1;
         this.ouder2 = ouder2;
-        this.kinderen = new ArrayList<>();
+        this.kinderen = new ArrayList();
+        this.observableKinderen = FXCollections.observableList(kinderen);
         this.huwelijksdatum = null;
         this.scheidingsdatum = null;
     }
@@ -73,8 +77,8 @@ public class Gezin {
     /**
      * @return alle kinderen uit dit gezin
      */
-    public List<Persoon> getKinderen() {
-        return (List<Persoon>) Collections.unmodifiableList(kinderen);
+    public ObservableList<Persoon> getKinderen() {
+        return FXCollections.unmodifiableObservableList(observableKinderen);
     }
 
     /**
@@ -170,15 +174,10 @@ public class Gezin {
      */
     boolean setHuwelijk(Calendar datum) {
         //todo opgave 1
-        Calendar huwelijksdatum = getHuwelijksdatum();
-        if(huwelijksdatum.before(datum) || huwelijksdatum == null)
+        if(this.isOngehuwd() && ouder1.kanTrouwenOp(datum) && ouder2.kanTrouwenOp(datum))
         {
-            Persoon persoon1 = getOuder1();
-            Persoon persoon2 = getOuder2();
-            if(persoon1.getGebDat().after(17) && persoon2.getGebDat().after(17) )
-            {
-                return true;
-            }
+            huwelijksdatum = datum;
+            return true;
         }
         return false;
     }
@@ -191,22 +190,26 @@ public class Gezin {
      */
     public String beschrijving() {
         //todo opgave 1
-                StringBuilder sb = new StringBuilder();
+        String retVal = null;
+        String conText = "; kinderen:";
+        retVal = this.nr + " " +
+                 this.ouder1.getNaam() + " met " +
+                 this.ouder2.getNaam();
+        if (this.huwelijksdatum != null)
+        {
+            SimpleDateFormat sdf = new SimpleDateFormat("d-M-yyyy");
 
-        sb.append(getNr() + getOuder1().getAchternaam() + getOuder2().getAchternaam());
-
-        if (getHuwelijksdatum() != null) {
-            sb.append(huwelijksdatum.toString());
+            retVal += " " + sdf.format(huwelijksdatum.getTime());
         }
-        if (getKinderen().isEmpty() != true) {
-            sb.append("; kinderen");
-            for(Persoon kind : kinderen)
+        if (!this.kinderen.isEmpty())
+        {
+            retVal += conText;
+            for (int i = 0; i < this.kinderen.size(); i++)
             {
-                String naam = kind.getNaam();
-                sb.append(" -" + naam);
+                retVal += " -" + this.kinderen.get(i).getVoornamen();
             }
         }
-        return sb.toString();
+        return retVal;       
     }
 
     /**
@@ -262,11 +265,8 @@ public class Gezin {
      */
     public boolean isHuwelijkOp(Calendar datum) {
         //todo opgave 1
-        if(getHuwelijksdatum().before(datum) || getHuwelijksdatum().equals(datum))
-        {
-            return true;
-        }
-        return false;
+        if(huwelijksdatum == null) return false;
+        return datum.compareTo(huwelijksdatum) >= 0;
     }
 
     /**
@@ -284,10 +284,7 @@ public class Gezin {
      */
     public boolean heeftGescheidenOudersOp(Calendar datum) {
         //todo opgave 1
-        if(getScheidingsdatum().before(datum))
-        {
-            return true;
-        }
-        return false;
+        if(scheidingsdatum == null) return false;
+        return datum.compareTo(scheidingsdatum) >= 0;
     }
 }
