@@ -240,7 +240,7 @@ public class DomeinTest extends TestCase{
                 pietEnTeuntje);
 
         assertNull("ouders verschillend", adm.addOngehuwdGezin(pim, pim));
-        assertEquals("ouders verschillend", eenoudergezin.getNr(), adm.aantalGeregistreerdeGezinnen());
+        assertEquals("ouders verschillend", eenoudergezin.getNr()+1, adm.aantalGeregistreerdeGezinnen());
 
         /* of als de volgende voorwaarden worden
          * overtreden: 1) een van de ouders is op dit moment getrouwd 2) het koppel
